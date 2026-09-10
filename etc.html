@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>その他 | 動画メタデータ ガイダンス</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">VIDEO METADATA GUIDANCE</div>
+    <nav class="pages">
+      <a href="index.html">はじめに</a>
+      <a href="description.html">タイトル・詳細欄</a>
+      <a href="translation.html">字幕</a>
+      <a href="keyword.html">検索語を調べる</a>
+      <a href="threetags.html">3つのタグ</a>
+      <a href="etc.html" aria-current="page">その他</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="section-label">補足</p>
+  <h1>動画内容</h1>
+
+  <div class="accordion" id="accordion">
+
+    <div class="acc-item" data-open="false" id="acc-1">
+      <button class="acc-trigger" data-target="acc-1">
+        <span class="acc-head">
+          <span class="acc-title">動画内容</span>
+          <span class="acc-caret">▾</span>
+        </span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+
+          <div class="qa-block">
+            <div class="qa-item" data-open="false" id="qa-1-1">
+              <button class="qa-trigger" data-target="qa-1-1">
+                <span class="qa-mark">Q</span>
+                <span class="qa-label">動画内容と、タイトル、詳細欄が評価されるとあるが、動画の内容の評価とは？</span>
+                <span class="qa-caret">▾</span>
+              </button>
+              <div class="qa-body">
+                <div class="qa-body-inner">
+                  <p>
+                    <strong style="color:var(--ink);">A：</strong>
+                    YouTube公式が現在明言しているのは、<strong style="color:var(--ink);">「動画コンテンツが検索語とどれだけ一致するかを、検索の関連性判断に使う」</strong>というところまでです。
+                  </p>
+                  <p>
+                    公式からは明確に述べられていませんが、次のような評価が考えられます。
+                  </p>
+                  <ul>
+                    <li>初音ミクがあるなら、初音ミクが表示されているか。</li>
+                    <li>明るい、とあるなら、明るい色調か。</li>
+                  </ul>
+                  <p>
+                    しかし、実際のところはわかりません。評価方法が公開されていません。
+                    「この検索語でこの動画を出すと、視聴者がちゃんと満足する」ことの方が重要かもしれません。実際はどうなっているのか、不明です。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa-item" data-open="false" id="qa-1-2">
+              <button class="qa-trigger" data-target="qa-1-2">
+                <span class="qa-mark">Q</span>
+                <span class="qa-label">動画の詳細ページに「AIの使用」の項目がある。どうしたらいい？</span>
+                <span class="qa-caret">▾</span>
+              </button>
+              <div class="qa-body">
+                <div class="qa-body-inner">
+                  <p>
+                    <strong style="color:var(--ink);">A：</strong>
+                    次の項目に応えておくことをお勧めします。
+                  </p>
+                  <p>
+                    AI の使用<br>
+                    以下の目的で、コンテンツの生成または編集に AI を使用しましたか？
+                  </p>
+                  <p>
+                    YouTubeは、開示が必要なAIコンテンツについて意図的に繰り返し開示しない場合、ラベルの強制適用や、コンテンツ削除・YPP参加停止などの措置を取る可能性があるとしています。
+                  </p>
+                  <p>
+                    そして音楽については、YouTubeが現在の例として<strong style="color:var(--ink);">「AI-generated music（AI生成音楽）」を開示が必要なコンテンツ</strong>に明示しています。
+                  </p>
+                  <p>
+                    もし「AIを使った」といっても、
+                  </p>
+                  <ul>
+                    <li>タイトル・説明の文章をAIに考えてもらった</li>
+                    <li>字幕をAIで作った</li>
+                    <li>アイデア出しにAIを使った</li>
+                    <li>音声を修復した</li>
+                    <li>アップスケールした</li>
+                  </ul>
+                  <p>
+                    程度なら、YouTubeは開示不要の例として挙げています。（「いいえ」を選択してOK）
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="wrap">
+  <footer class="pagefoot">
+    <a href="threetags.html">← 3つのタグ</a>
+    <a href="index.html">はじめにに戻る →</a>
+  </footer>
+</div>
+
+<script>
+  // クリックで開閉するトグル共通処理。
+  // 高さは grid-template-rows: 0fr / 1fr の切り替えでCSS側が自動対応するため、
+  // JS側は data-open の付け替えだけでよい。
+  function setupToggle(triggerSelector, itemSelector) {
+    document.querySelectorAll(triggerSelector).forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const item = trigger.closest(itemSelector);
+        const isOpen = item.getAttribute('data-open') === 'true';
+        item.setAttribute('data-open', isOpen ? 'false' : 'true');
+      });
+    });
+  }
+
+  setupToggle('.acc-trigger', '.acc-item');
+  setupToggle('.qa-trigger', '.qa-item');
+</script>
+
+<button class="to-top" id="toTop" aria-label="ページの一番上へ戻る">
+  <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"></path>
+    <path d="M5 12l7-7 7 7"></path>
+  </svg>
+</button>
+<script>
+  const toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', () => {
+    toTop.classList.toggle('visible', window.scrollY > 300);
+  });
+  toTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+
+</body>
+</html>
