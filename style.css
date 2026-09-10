@@ -361,6 +361,139 @@ select:focus {
 .kw-bar { height: 10px; background: var(--accent-soft); }
 .kw-table tr.in-tags td:first-child { color: var(--good); }
 
+/* ---------- アコーディオン（トグル開閉） ---------- */
+.accordion { border-top: 1px solid var(--line); margin-bottom: 44px; }
+.acc-item { border-bottom: 1px solid var(--line); }
+
+.acc-trigger {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 20px 0;
+  font: inherit;
+  color: var(--ink);
+}
+.acc-trigger:hover .acc-title { color: var(--accent); }
+.acc-trigger:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 4px; }
+
+.acc-head { display: flex; align-items: baseline; gap: 14px; }
+.acc-mark {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  color: var(--accent);
+  flex-shrink: 0;
+  width: 1.4em;
+}
+.acc-title {
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.5;
+  transition: color 0.15s ease;
+}
+.acc-caret {
+  margin-left: auto;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+.acc-item[data-open="true"] .acc-caret { transform: rotate(180deg); }
+
+.acc-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.25s ease;
+}
+.acc-item[data-open="true"] .acc-body { max-height: var(--acc-body-h, 2000px); }
+
+.acc-body-inner {
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  padding: 0 0 24px 34px;
+}
+.acc-body-inner p { margin: 0 0 14px; }
+.acc-body-inner p:last-child { margin-bottom: 0; }
+.acc-body-inner code {
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 13px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 1px 6px;
+}
+
+/* Q&A：入れ子のトグル */
+.qa-block { margin-top: 4px; }
+.qa-item { border-top: 1px solid var(--line); }
+.qa-item:first-child { border-top: none; }
+
+.qa-trigger {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 14px 0;
+  font: inherit;
+}
+.qa-trigger:hover .qa-label { color: var(--accent); }
+.qa-trigger:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 4px; }
+
+.qa-mark {
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.qa-label {
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  font-size: 14.5px;
+  color: var(--ink);
+  line-height: 1.6;
+  transition: color 0.15s ease;
+}
+.qa-caret {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ink-soft);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+.qa-item[data-open="true"] .qa-caret { transform: rotate(180deg); }
+
+.qa-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.25s ease;
+}
+.qa-item[data-open="true"] .qa-body { max-height: var(--qa-body-h, 1000px); }
+
+.qa-body-inner {
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  font-size: 14px;
+  color: var(--ink-soft);
+  padding: 0 0 18px 23px;
+}
+.qa-body-inner p { margin: 0 0 10px; }
+.qa-body-inner p:last-child { margin-bottom: 0; }
+.qa-body-inner code {
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 1px 6px;
+}
+.qa-body-inner ul { margin: 8px 0; padding-left: 20px; }
+.qa-body-inner li { margin-bottom: 4px; }
+
 /* ---------- フッター ---------- */
 footer.pagefoot {
   margin-top: 60px;
