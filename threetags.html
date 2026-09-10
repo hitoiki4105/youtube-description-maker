@@ -193,30 +193,37 @@
 </div>
 
 <script>
-  // クリックで開閉するアコーディオン共通処理。
-  // max-height をトグル前に実測してCSS変数へ渡すことで、
-  // 中身の長さに関わらず滑らかに開閉する。
-  function setupToggle(triggerSelector, itemSelector, bodySelector, innerSelector, heightVar) {
+  // クリックで開閉するトグル共通処理。
+  // 高さは grid-template-rows: 0fr / 1fr の切り替えでCSS側が自動対応するため、
+  // JS側は data-open の付け替えだけでよい。中身の長さや今後の追加・変更にも影響されない。
+  function setupToggle(triggerSelector, itemSelector) {
     document.querySelectorAll(triggerSelector).forEach(trigger => {
       trigger.addEventListener('click', () => {
         const item = trigger.closest(itemSelector);
         const isOpen = item.getAttribute('data-open') === 'true';
-        const body = item.querySelector(bodySelector);
-        const inner = item.querySelector(innerSelector);
-
-        if (!isOpen) {
-          const h = inner.getBoundingClientRect().height;
-          item.style.setProperty(heightVar, h + 'px');
-          item.setAttribute('data-open', 'true');
-        } else {
-          item.setAttribute('data-open', 'false');
-        }
+        item.setAttribute('data-open', isOpen ? 'false' : 'true');
       });
     });
   }
 
-  setupToggle('.acc-trigger', '.acc-item', '.acc-body', '.acc-body-inner', '--acc-body-h');
-  setupToggle('.qa-trigger', '.qa-item', '.qa-body', '.qa-body-inner', '--qa-body-h');
+  setupToggle('.acc-trigger', '.acc-item');
+  setupToggle('.qa-trigger', '.qa-item');
+</script>
+
+<button class="to-top" id="toTop" aria-label="ページの一番上へ戻る">
+  <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"></path>
+    <path d="M5 12l7-7 7 7"></path>
+  </svg>
+</button>
+<script>
+  const toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', () => {
+    toTop.classList.toggle('visible', window.scrollY > 300);
+  });
+  toTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 </script>
 
 </body>

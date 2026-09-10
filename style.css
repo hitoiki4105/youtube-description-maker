@@ -398,13 +398,14 @@ select:focus {
 .acc-item[data-open="true"] .acc-caret { transform: rotate(180deg); }
 
 .acc-body {
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height 0.25s ease;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
 }
-.acc-item[data-open="true"] .acc-body { max-height: var(--acc-body-h, 2000px); }
+.acc-item[data-open="true"] .acc-body { grid-template-rows: 1fr; }
 
 .acc-body-inner {
+  overflow: hidden;
   font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   font-size: 14.5px;
   color: var(--ink-soft);
@@ -464,13 +465,14 @@ select:focus {
 .qa-item[data-open="true"] .qa-caret { transform: rotate(180deg); }
 
 .qa-body {
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height 0.25s ease;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
 }
-.qa-item[data-open="true"] .qa-body { max-height: var(--qa-body-h, 1000px); }
+.qa-item[data-open="true"] .qa-body { grid-template-rows: 1fr; }
 
 .qa-body-inner {
+  overflow: hidden;
   font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   font-size: 14px;
   color: var(--ink-soft);
@@ -487,6 +489,35 @@ select:focus {
 }
 .qa-body-inner ul { margin: 8px 0; padding-left: 20px; }
 .qa-body-inner li { margin-bottom: 4px; }
+
+/* ---------- ページトップへ戻る（固定ボタン） ---------- */
+.to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.15s ease;
+  z-index: 100;
+}
+.to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+.to-top:hover { background: var(--accent); border-color: var(--accent); }
+.to-top:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 3px; }
+.to-top svg { width: 20px; height: 20px; stroke: var(--bg); fill: none; }
+
+@media (max-width: 620px) {
+  .to-top { right: 16px; bottom: 16px; width: 42px; height: 42px; }
+}
 
 /* ---------- フッター ---------- */
 footer.pagefoot {
