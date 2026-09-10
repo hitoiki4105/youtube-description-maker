@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>字幕 | 動画メタデータ ガイダンス</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">VIDEO METADATA GUIDANCE</div>
+    <nav class="pages">
+      <a href="index.html">はじめに</a>
+      <a href="description.html">タイトル・詳細欄</a>
+      <a href="translation.html" aria-current="page">字幕</a>
+      <a href="keyword.html">検索語を調べる</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="section-label">STEP 2</p>
+  <h1>字幕を確認する。</h1>
+  <p class="lede">
+    字幕（SRT / VTT形式）を貼り付けると、行数や文字数の目安をその場で確認できます。
+    どの言語で用意するかも、あわせて整理しておきましょう。
+  </p>
+
+  <!-- 字幕チェック -->
+  <div class="field-block">
+    <div class="field-head">
+      <h2>字幕テキストを確認する</h2>
+    </div>
+    <p class="field-note">SRTまたはVTT形式のテキストをそのまま貼り付けてください。1行あたりの長さと表示時間の目安をチェックします。</p>
+    <textarea id="subInput" placeholder="1&#10;00:00:00,000 --&gt; 00:00:03,200&#10;ここに字幕のテキストを貼り付けてください&#10;&#10;2&#10;00:00:03,200 --&gt; 00:00:06,000&#10;2行目のセリフがここに入ります"></textarea>
+
+    <div class="stat-bar sans">
+      <div class="stat"><span class="num" id="statBlocks">0</span><span class="label">字幕ブロック数</span></div>
+      <div class="stat"><span class="num" id="statLongLines">0</span><span class="label">1行が長すぎる箇所</span></div>
+      <div class="stat"><span class="num" id="statFast">0</span><span class="label">表示時間が短すぎる箇所</span></div>
+    </div>
+
+    <div class="tips">
+      <ul id="subTips"></ul>
+    </div>
+  </div>
+
+  <!-- 多言語対応 -->
+  <div class="field-block">
+    <div class="field-head">
+      <h2>どの言語で用意するか</h2>
+    </div>
+    <p class="field-note">視聴者層に合わせて、用意する字幕の言語を選んでください（記録用のチェックリストです）。</p>
+    <div class="lang-grid" id="langGrid">
+      <label><input type="checkbox" value="日本語" checked> 日本語</label>
+      <label><input type="checkbox" value="英語"> 英語</label>
+      <label><input type="checkbox" value="中国語（簡体）"> 中国語（簡体）</label>
+      <label><input type="checkbox" value="中国語（繁体）"> 中国語（繁体）</label>
+      <label><input type="checkbox" value="韓国語"> 韓国語</label>
+      <label><input type="checkbox" value="スペイン語"> スペイン語</label>
+      <label><input type="checkbox" value="フランス語"> フランス語</label>
+      <label><input type="checkbox" value="ポルトガル語"> ポルトガル語</label>
+      <label><input type="checkbox" value="ドイツ語"> ドイツ語</label>
+      <label><input type="checkbox" value="ベトナム語"> ベトナム語</label>
+      <label><input type="checkbox" value="インドネシア語"> インドネシア語</label>
+      <label><input type="checkbox" value="ヒンディー語"> ヒンディー語</label>
+    </div>
+    <div class="tips">
+      <ul id="langTips"></ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="wrap">
+  <footer class="pagefoot">
+    <a href="description.html">← タイトル・詳細欄</a>
+    <a href="keyword.html">次へ：検索語を調べる →</a>
+  </footer>
+</div>
+
+<script>
+  const subInput = document.getElementById('subInput');
+  const statBlocks = document.getElementById('statBlocks');
+  const statLongLines = document.getElementById('statLongLines');
+  const statFast = document.getElementById('statFast');
+  const subTips = document.getElementById('subTips');
+
+  const LINE_MAX = 42; // 1行あたりの目安文字数（全角想定でやや余裕をもたせた基準）
+  const MIN_DURATION = 1.0; // 秒
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function timeToSeconds(t) {
+    // 00:00:03,200 または 00:00:03.200
+    const m = t.match(/(\d{2}):(\d{2}):(\d{2})[.,](\d{3})/);
+    if (!m) return null;
+    return (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]) + (+m[4]) / 1000;
+  }
+
+  function analyzeSubtitles() {
+    const raw = subInput.value;
+    if (!raw.trim()) {
+      statBlocks.textContent = '0';
+      statLongLines.textContent = '0';
+      statFast.textContent = '0';
+      statLongLines.className = 'num';
+      statFast.className = 'num';
+      subTips.innerHTML = '<li>まだ字幕が貼り付けられていません。SRTまたはVTT形式のテキストを上の欄に入力してください。</li>';
+      return;
+    }
+
+    const blocks = raw.split(/\r?\n\r?\n+/).filter(b => b.trim());
+    let longLineCount = 0;
+    let fastCount = 0;
+    let noTimecodeBlocks = 0;
+
+    blocks.forEach(block => {
+      const lines = block.split(/\r?\n/).filter(l => l.trim());
+      const timeLine = lines.find(l => /\d{2}:\d{2}:\d{2}[.,]\d{3}/.test(l));
+      const textLines = lines.filter(l => l !== timeLine && !/^\d+$/.test(l.trim()));
+
+      textLines.forEach(line => {
+        if (line.length > LINE_MAX) longLineCount++;
+      });
+
+      if (timeLine) {
+        const times = timeLine.match(/\d{2}:\d{2}:\d{2}[.,]\d{3}/g);
+        if (times && times.length === 2) {
+          const start = timeToSeconds(times[0]);
+          const end = timeToSeconds(times[1]);
+          if (start !== null && end !== null && (end - start) < MIN_DURATION) {
+            fastCount++;
+          }
+        }
+      } else {
+        noTimecodeBlocks++;
+      }
+    });
+
+    statBlocks.textContent = blocks.length;
+    statLongLines.textContent = longLineCount;
+    statLongLines.className = 'num' + (longLineCount > 0 ? ' warn' : '');
+    statFast.textContent = fastCount;
+    statFast.className = 'num' + (fastCount > 0 ? ' warn' : '');
+
+    const tips = [];
+    if (longLineCount > 0) {
+      tips.push({ text: `1行が${LINE_MAX}文字を超える箇所が${longLineCount}件あります。画面内で2行に収まらず読みにくくなる場合があるため、改行や短縮を検討してください。`, flag: true });
+    } else {
+      tips.push({ text: '1行あたりの長さは目安の範囲に収まっています。', flag: false });
+    }
+    if (fastCount > 0) {
+      tips.push({ text: `表示時間が${MIN_DURATION}秒未満の字幕が${fastCount}件あります。読み切れない可能性があるため、表示時間を延ばすか文字数を減らすことを検討してください。`, flag: true });
+    } else if (blocks.length > 0) {
+      tips.push({ text: '表示時間が極端に短い箇所は見当たりません。', flag: false });
+    }
+    if (noTimecodeBlocks > 0) {
+      tips.push({ text: `タイムコードが見つからないブロックが${noTimecodeBlocks}件あります。形式が崩れていないか確認してください。`, flag: true });
+    }
+    subTips.innerHTML = tips.map(t => `<li class="${t.flag ? 'flag' : ''}">${escapeHtml(t.text)}</li>`).join('');
+  }
+
+  subInput.addEventListener('input', analyzeSubtitles);
+  analyzeSubtitles();
+
+  // 言語チェックリスト
+  const langGrid = document.getElementById('langGrid');
+  const langTips = document.getElementById('langTips');
+
+  function renderLangTips() {
+    const checked = Array.from(langGrid.querySelectorAll('input:checked')).map(i => i.value);
+    const tips = [];
+    if (checked.length <= 1) {
+      tips.push({ text: '現在は1言語のみの予定です。海外からの視聴が見込める場合は、英語字幕の追加を検討してください。', flag: false });
+    } else {
+      tips.push({ text: `${checked.length}言語を用意する予定です：${checked.join('、')}`, flag: false });
+    }
+    langTips.innerHTML = tips.map(t => `<li>${escapeHtml(t.text)}</li>`).join('');
+  }
+  langGrid.addEventListener('change', renderLangTips);
+  renderLangTips();
+</script>
+
+</body>
+</html>

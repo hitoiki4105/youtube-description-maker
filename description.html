@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タイトル・詳細欄 | 動画メタデータ ガイダンス</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">VIDEO METADATA GUIDANCE</div>
+    <nav class="pages">
+      <a href="index.html">はじめに</a>
+      <a href="description.html" aria-current="page">タイトル・詳細欄</a>
+      <a href="translation.html">字幕</a>
+      <a href="keyword.html">検索語を調べる</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="section-label">STEP 1</p>
+  <h1>タイトルと詳細欄を書く。</h1>
+  <p class="lede">
+    入力しながら、文字数と表示される範囲をその場で確認できます。
+    検索結果でどこまで表示され、どこから見切れるかを目安にしてください。
+  </p>
+
+  <!-- タイトル -->
+  <div class="field-block">
+    <div class="field-head">
+      <h2>タイトル</h2>
+      <span class="counter sans" id="titleCounter"><b>0</b> / 100 文字</span>
+    </div>
+    <input type="text" id="titleInput" placeholder="例：初心者向け動画編集の始め方 完全ガイド" maxlength="100">
+    <div class="ruler">
+      <div class="fill" id="titleFill" style="width:0%"></div>
+      <div class="mark" style="left:60%"></div>
+      <div class="mark-label" style="left:60%">60（検索結果の目安）</div>
+    </div>
+
+    <p class="preview-label">検索結果での見え方</p>
+    <div class="serp">
+      <div class="serp-title" id="serpTitle">タイトルがここに表示されます</div>
+      <div class="serp-meta">www.youtube.com › watch</div>
+      <div class="serp-desc" id="serpDescPreviewInTitle">詳細欄の冒頭がここに表示されます。</div>
+    </div>
+
+    <div class="tips">
+      <ul id="titleTips"></ul>
+    </div>
+  </div>
+
+  <!-- 詳細欄 -->
+  <div class="field-block">
+    <div class="field-head">
+      <h2>詳細欄</h2>
+      <span class="counter sans" id="descCounter"><b>0</b> / 5000 文字</span>
+    </div>
+    <textarea id="descInput" placeholder="動画の内容を最初の1〜2文で要約し、その後に詳細・タイムスタンプ・リンクなどを続けてください。"></textarea>
+    <div class="ruler">
+      <div class="fill" id="descFill" style="width:0%"></div>
+      <div class="mark" style="left:3.14%"></div>
+      <div class="mark-label" style="left:3.14%">157（表示の折返し）</div>
+    </div>
+
+    <p class="preview-label">「もっと見る」で折り返される位置</p>
+    <div class="serp">
+      <div class="serp-desc" id="descFoldPreview">詳細欄の内容がここに表示されます。</div>
+    </div>
+
+    <div class="tips">
+      <ul id="descTips"></ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="wrap">
+  <footer class="pagefoot">
+    <a href="index.html">← はじめに</a>
+    <a href="translation.html">次へ：字幕 →</a>
+  </footer>
+</div>
+
+<script>
+  const titleInput = document.getElementById('titleInput');
+  const titleCounter = document.getElementById('titleCounter');
+  const titleFill = document.getElementById('titleFill');
+  const serpTitle = document.getElementById('serpTitle');
+  const titleTips = document.getElementById('titleTips');
+  const serpDescPreviewInTitle = document.getElementById('serpDescPreviewInTitle');
+
+  const descInput = document.getElementById('descInput');
+  const descCounter = document.getElementById('descCounter');
+  const descFill = document.getElementById('descFill');
+  const descFoldPreview = document.getElementById('descFoldPreview');
+  const descTips = document.getElementById('descTips');
+
+  const TITLE_MAX = 100;
+  const TITLE_SNIPPET = 60;
+  const DESC_MAX = 5000;
+  const DESC_FOLD = 157;
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderTitle() {
+    const val = titleInput.value;
+    const len = val.length;
+    titleCounter.innerHTML = `<b>${len}</b> / ${TITLE_MAX} 文字`;
+    titleCounter.className = 'counter sans ' + (len > TITLE_SNIPPET ? (len > TITLE_MAX ? 'state-warn' : 'state-warn') : 'state-good');
+
+    const pct = Math.min(100, (len / TITLE_MAX) * 100);
+    titleFill.style.width = pct + '%';
+    titleFill.className = 'fill' + (len > TITLE_SNIPPET ? ' over' : '');
+
+    serpTitle.textContent = val || 'タイトルがここに表示されます';
+
+    const tips = [];
+    if (len === 0) {
+      tips.push({ text: 'まだ入力されていません。主要なキーワードを最初の3〜5語に置くことを意識してください。', flag: false });
+    } else {
+      if (len > TITLE_SNIPPET) {
+        tips.push({ text: `${TITLE_SNIPPET}文字を超えています。検索結果やおすすめ動画の一覧では末尾が「…」で見切れる可能性があります。`, flag: true });
+      } else {
+        tips.push({ text: `${TITLE_SNIPPET}文字以内に収まっています。一覧表示でも全体が見えやすい長さです。`, flag: false });
+      }
+      const firstWords = val.slice(0, 20);
+      tips.push({ text: `冒頭20文字：「${firstWords}」。検索されそうな言葉が含まれているか確認してください。`, flag: false });
+    }
+    titleTips.innerHTML = tips.map(t => `<li class="${t.flag ? 'flag' : ''}">${escapeHtml(t.text)}</li>`).join('');
+  }
+
+  function renderDesc() {
+    const val = descInput.value;
+    const len = val.length;
+    descCounter.innerHTML = `<b>${len}</b> / ${DESC_MAX} 文字`;
+    descCounter.className = 'counter sans ' + (len === 0 ? '' : (len < 100 ? 'state-warn' : 'state-good'));
+
+    const pct = Math.min(100, (len / DESC_MAX) * 100);
+    descFill.style.width = pct + '%';
+
+    // 冒頭157文字プレビュー：見える部分と折返し後を分けて表示
+    if (len === 0) {
+      descFoldPreview.innerHTML = '詳細欄の内容がここに表示されます。';
+      serpDescPreviewInTitle.textContent = '詳細欄の冒頭がここに表示されます。';
+    } else {
+      const visible = val.slice(0, DESC_FOLD);
+      const hidden = val.slice(DESC_FOLD);
+      descFoldPreview.innerHTML = escapeHtml(visible) + (hidden ? `<span class="cut"> … もっと見る（${escapeHtml(hidden.slice(0, 80))}${hidden.length > 80 ? '…' : ''}）</span>` : '');
+      serpDescPreviewInTitle.textContent = val.slice(0, 157) + (val.length > 157 ? '…' : '');
+    }
+
+    const tips = [];
+    if (len === 0) {
+      tips.push({ text: 'まだ入力されていません。最初の1〜2文で動画の要点を伝えるのが基本です。', flag: false });
+    } else {
+      if (len < 100) {
+        tips.push({ text: '冒頭部分が短めです。150文字前後まで要点を書き込む余地があります。', flag: true });
+      } else if (len < DESC_FOLD) {
+        tips.push({ text: `折返し位置（${DESC_FOLD}文字）にまだ届いていません。要約や結論をこの範囲に収めると効果的です。`, flag: false });
+      } else {
+        tips.push({ text: `冒頭${DESC_FOLD}文字の範囲は検索結果や「もっと見る」の前に表示されます。ここに要点が収まっているか見直してください。`, flag: false });
+      }
+      if (len > 2000) {
+        tips.push({ text: '2000文字を超える長さです。タイムスタンプや見出しを使って読みやすく整理すると親切です。', flag: false });
+      }
+      if (!/\d{1,2}:\d{2}/.test(val) && len > 800) {
+        tips.push({ text: '長めの詳細欄ですが、タイムスタンプ（例：0:00）が見当たりません。10分以上の動画では追加を検討してください。', flag: true });
+      }
+    }
+    descTips.innerHTML = tips.map(t => `<li class="${t.flag ? 'flag' : ''}">${escapeHtml(t.text)}</li>`).join('');
+  }
+
+  titleInput.addEventListener('input', renderTitle);
+  descInput.addEventListener('input', renderDesc);
+  renderTitle();
+  renderDesc();
+</script>
+
+</body>
+</html>

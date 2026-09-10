@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>検索語を調べる | 動画メタデータ ガイダンス</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">VIDEO METADATA GUIDANCE</div>
+    <nav class="pages">
+      <a href="index.html">はじめに</a>
+      <a href="description.html">タイトル・詳細欄</a>
+      <a href="translation.html">字幕</a>
+      <a href="keyword.html" aria-current="page">検索語を調べる</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="section-label">STEP 3</p>
+  <h1>検索語とタグを調べる。</h1>
+  <p class="lede">
+    タイトルと詳細欄からよく使われている言葉を洗い出し、タグとして選んだ言葉が
+    実際の文中に含まれているかを確認します。
+  </p>
+
+  <!-- タグ入力 -->
+  <div class="field-block">
+    <div class="field-head">
+      <h2>タグ</h2>
+      <span class="sans" id="tagCounter" style="font-family:'SFMono-Regular',Menlo,Consolas,monospace;font-size:13.5px;color:var(--ink-soft);"><b id="tagCharCount">0</b> / 500 文字</span>
+    </div>
+    <p class="field-note">Enterキーまたは「追加」でタグを登録してください。全タグの合計が500文字を超えると赤く表示されます。</p>
+    <div class="tag-input-row">
+      <input type="text" id="tagInput" placeholder="タグを入力してEnter">
+      <button id="tagAddBtn">追加</button>
+    </div>
+    <div class="tag-list" id="tagList"></div>
+    <div class="ruler"><div class="fill" id="tagFill" style="width:0%"></div></div>
+
+    <div class="stat-bar">
+      <div class="stat"><span class="num" id="statTagCount">0</span><span class="label">タグの数</span></div>
+    </div>
+
+    <div class="tips">
+      <ul id="tagTips"></ul>
+    </div>
+  </div>
+
+  <!-- キーワード抽出 -->
+  <div class="field-block">
+    <div class="field-head">
+      <h2>キーワード候補を洗い出す</h2>
+    </div>
+    <p class="field-note">タイトルと詳細欄の文章を貼り付けると、よく登場する言葉を頻度順に並べます。タグに含まれている言葉は色で示します。</p>
+    <textarea id="kwSource" placeholder="タイトルや詳細欄の文章をここに貼り付けてください。"></textarea>
+
+    <table class="kw-table" id="kwTable" style="margin-top:18px;">
+      <thead>
+        <tr><th>言葉</th><th>出現回数</th><th class="bar-cell">頻度</th></tr>
+      </thead>
+      <tbody id="kwTableBody"></tbody>
+    </table>
+
+    <div class="tips">
+      <ul id="kwTips"></ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="wrap">
+  <footer class="pagefoot">
+    <a href="translation.html">← 字幕</a>
+    <a href="index.html">はじめにに戻る →</a>
+  </footer>
+</div>
+
+<script>
+  // ---- タグ管理 ----
+  const tagInput = document.getElementById('tagInput');
+  const tagAddBtn = document.getElementById('tagAddBtn');
+  const tagList = document.getElementById('tagList');
+  const tagCharCount = document.getElementById('tagCharCount');
+  const tagFill = document.getElementById('tagFill');
+  const statTagCount = document.getElementById('statTagCount');
+  const tagTips = document.getElementById('tagTips');
+
+  const TAG_TOTAL_MAX = 500;
+  const TAG_SINGLE_RECOMMENDED = 30;
+
+  let tags = [];
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function totalTagChars() {
+    // YouTubeの内部仕様に近い簡易計算：カンマ区切りの合計文字数
+    return tags.reduce((sum, t) => sum + t.length, 0) + Math.max(0, tags.length - 1);
+  }
+
+  function renderTags() {
+    tagList.innerHTML = tags.map((t, i) => `
+      <span class="tag-chip ${t.length > TAG_SINGLE_RECOMMENDED ? 'over' : ''}">
+        ${escapeHtml(t)}<span class="len">${t.length}</span><span class="remove" data-i="${i}">×</span>
+      </span>
+    `).join('');
+
+    const total = totalTagChars();
+    tagCharCount.textContent = total;
+    tagCharCount.style.color = total > TAG_TOTAL_MAX ? 'var(--warn)' : 'var(--ink)';
+    tagFill.style.width = Math.min(100, (total / TAG_TOTAL_MAX) * 100) + '%';
+    tagFill.className = 'fill' + (total > TAG_TOTAL_MAX ? ' over' : '');
+    statTagCount.textContent = tags.length;
+    statTagCount.className = 'num' + (tags.length > 0 && tags.length <= 12 ? ' good' : (tags.length > 12 ? ' warn' : ''));
+
+    const tips = [];
+    if (tags.length === 0) {
+      tips.push({ text: 'まだタグがありません。動画の内容を表す言葉を5〜10個ほど登録してみてください。', flag: false });
+    } else {
+      if (total > TAG_TOTAL_MAX) {
+        tips.push({ text: `タグ合計が${TAG_TOTAL_MAX}文字を超えています（${total}文字）。超過分は登録されない可能性があるため、短いタグに絞ってください。`, flag: true });
+      }
+      if (tags.length > 12) {
+        tips.push({ text: `タグの数が${tags.length}個です。8〜12個程度に絞り込むほうが、それぞれのタグの意味が薄まりにくくなります。`, flag: true });
+      } else if (tags.length < 5) {
+        tips.push({ text: `タグが${tags.length}個です。動画の主題・広めのジャンル・具体的な話題をそれぞれ1〜2個ずつ加えると網羅しやすくなります。`, flag: false });
+      } else {
+        tips.push({ text: `タグは${tags.length}個です。実用的とされる範囲に収まっています。`, flag: false });
+      }
+      const longTags = tags.filter(t => t.length > TAG_SINGLE_RECOMMENDED);
+      if (longTags.length > 0) {
+        tips.push({ text: `30文字を超える長いタグが${longTags.length}個あります（${longTags.join('、')}）。実際の検索語と一致しにくいため、短く区切ることを検討してください。`, flag: true });
+      }
+      const dupCheck = new Set();
+      const dups = tags.filter(t => {
+        const key = t.toLowerCase();
+        if (dupCheck.has(key)) return true;
+        dupCheck.add(key);
+        return false;
+      });
+      if (dups.length > 0) {
+        tips.push({ text: `重複している可能性のあるタグがあります：${dups.join('、')}`, flag: true });
+      }
+    }
+    tagTips.innerHTML = tips.map(t => `<li class="${t.flag ? 'flag' : ''}">${escapeHtml(t.text)}</li>`).join('');
+
+    renderKeywordTable(); // タグ変更時にキーワード表の色分けも更新
+  }
+
+  function addTag(value) {
+    const v = value.trim();
+    if (!v) return;
+    if (tags.some(t => t.toLowerCase() === v.toLowerCase())) return;
+    tags.push(v);
+    renderTags();
+  }
+
+  tagAddBtn.addEventListener('click', () => {
+    addTag(tagInput.value);
+    tagInput.value = '';
+    tagInput.focus();
+  });
+  tagInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTag(tagInput.value);
+      tagInput.value = '';
+    }
+  });
+  tagList.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove')) {
+      const i = +e.target.dataset.i;
+      tags.splice(i, 1);
+      renderTags();
+    }
+  });
+
+  // ---- キーワード頻度抽出 ----
+  const kwSource = document.getElementById('kwSource');
+  const kwTableBody = document.getElementById('kwTableBody');
+  const kwTips = document.getElementById('kwTips');
+
+  // 日本語（2〜4文字の連続漢字/カタカナ/ひらがな塊）と英単語を対象にした簡易抽出
+  const STOPWORDS = new Set(['こと','これ','それ','ため','よう','もの','ここ','どう','という','として','ので','から','など','ます','です','した','して','いる','ある','その','この','あの','どの','なる']);
+
+  function extractKeywords(text) {
+    const freq = {};
+
+    // 英数字の単語
+    const words = text.match(/[A-Za-z0-9]{3,}/g) || [];
+    words.forEach(w => {
+      const key = w.toLowerCase();
+      freq[key] = (freq[key] || 0) + 1;
+    });
+
+    // 日本語の塊（カタカナ連続、漢字連続、ひらがな連続）
+    const jpChunks = text.match(/[\u30A0-\u30FF]{2,}|[\u4E00-\u9FFF]{2,}|[\u3040-\u309F]{3,}/g) || [];
+    jpChunks.forEach(w => {
+      if (STOPWORDS.has(w)) return;
+      freq[w] = (freq[w] || 0) + 1;
+    });
+
+    return Object.entries(freq)
+      .filter(([w, c]) => c >= 1)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 20);
+  }
+
+  function renderKeywordTable() {
+    const text = kwSource.value;
+    if (!text.trim()) {
+      kwTableBody.innerHTML = `<tr><td colspan="3" style="color:var(--ink-soft);">まだ文章が入力されていません。</td></tr>`;
+      kwTips.innerHTML = '';
+      return;
+    }
+    const results = extractKeywords(text);
+    if (results.length === 0) {
+      kwTableBody.innerHTML = `<tr><td colspan="3" style="color:var(--ink-soft);">繰り返し登場する言葉が見つかりませんでした。</td></tr>`;
+      kwTips.innerHTML = '';
+      return;
+    }
+    const max = results[0][1];
+    const tagLower = tags.map(t => t.toLowerCase());
+
+    kwTableBody.innerHTML = results.map(([w, c]) => {
+      const inTags = tagLower.includes(w.toLowerCase());
+      const barWidth = Math.max(6, (c / max) * 100);
+      return `<tr class="${inTags ? 'in-tags' : ''}">
+        <td>${escapeHtml(w)}${inTags ? ' ✓' : ''}</td>
+        <td>${c}</td>
+        <td class="bar-cell"><div class="kw-bar" style="width:${barWidth}%"></div></td>
+      </tr>`;
+    }).join('');
+
+    const notInTags = results.filter(([w]) => !tagLower.includes(w.toLowerCase())).slice(0, 5);
+    const tips = [];
+    if (notInTags.length > 0) {
+      tips.push({ text: `頻出しているのにタグに含まれていない言葉があります：${notInTags.map(r => r[0]).join('、')}。タグとして加える価値があるか検討してください。`, flag: true });
+    }
+    if (tags.length > 0 && results.filter(([w]) => tagLower.includes(w.toLowerCase())).length === 0) {
+      tips.push({ text: '登録済みのタグが、文中の頻出語と一致していません。タイトル・詳細欄の言葉づかいとタグを揃えると一貫性が出ます。', flag: true });
+    }
+    kwTips.innerHTML = tips.map(t => `<li class="${t.flag ? 'flag' : ''}">${escapeHtml(t.text)}</li>`).join('');
+  }
+
+  kwSource.addEventListener('input', renderKeywordTable);
+
+  renderTags();
+  renderKeywordTable();
+</script>
+
+</body>
+</html>
