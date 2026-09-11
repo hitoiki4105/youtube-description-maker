@@ -609,6 +609,26 @@ select:focus {
 
 .query-row.query-row-single { grid-template-columns: 1fr; }
 
+/* ---------- 実践編ボタン ---------- */
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  font-size: 14.5px;
+  color: var(--bg);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  padding: 12px 22px;
+  text-decoration: none;
+  margin: 0 0 40px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.action-link:hover { background: var(--accent); border-color: var(--accent); }
+.action-link:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 3px; }
+.action-link .arrow { transition: transform 0.15s ease; }
+.action-link:hover .arrow { transform: translateX(3px); }
+
 /* ---------- フッター ---------- */
 footer.pagefoot {
   margin-top: 60px;
