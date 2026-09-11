@@ -226,7 +226,7 @@ select:focus {
 /* ---------- トップページ：ページ一覧マップ ---------- */
 .map {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
@@ -236,11 +236,10 @@ select:focus {
   background: var(--panel);
   text-decoration: none;
   color: inherit;
-  padding: 26px 24px;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 150px;
+  gap: 8px;
   transition: background 0.15s ease;
 }
 .map a:hover { background: #fffdf6; }
