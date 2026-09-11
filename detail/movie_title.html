@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タイトル | 動画情報の詳細ガイド</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">VIDEO DETAIL GUIDANCE</div>
+    <nav class="pages">
+      <a href="guidance.html">はじめに</a>
+      <a href="channel_description.html">チャンネル説明欄</a>
+      <a href="movie_description.html">動画詳細欄</a>
+      <a href="movie_title.html" aria-current="page">タイトル</a>
+      <a href="movie_thumbnail.html">サムネイル</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="section-label">補足</p>
+  <h1>タイトル</h1>
+
+</div>
+
+<div class="wrap">
+  <footer class="pagefoot">
+    <a href="movie_description.html">← 動画詳細欄</a>
+    <a href="movie_thumbnail.html">次へ：サムネイル →</a>
+  </footer>
+</div>
+
+<button class="to-top" id="toTop" aria-label="ページの一番上へ戻る">
+  <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"></path>
+    <path d="M5 12l7-7 7 7"></path>
+  </svg>
+</button>
+<script>
+  const toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', () => {
+    toTop.classList.toggle('visible', window.scrollY > 300);
+  });
+  toTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+
+</body>
+</html>
